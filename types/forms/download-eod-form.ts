@@ -28,15 +28,9 @@ export const formEodSchema = z
         message: "Longitude must be between -180 and 180",
       })
       .max(180, { message: "Longitude must be between -180 and 180" }),
-    date: z
-      .object({
-        from: z.date(),
-        to: z.date(),
-      })
-      .refine(
-        (data) => data.from < data.to,
-        "Minimum date must be before maximum date",
-      ),
+
+    from: z.date(),
+    to: z.date(),
   })
   .refine(
     (values) => {
@@ -56,3 +50,5 @@ export const formEodSchema = z
       path: ["lonmax"],
     },
   );
+
+export type FormValues = z.infer<typeof formEodSchema>;
