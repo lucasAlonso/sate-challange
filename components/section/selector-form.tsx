@@ -10,27 +10,30 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { CalendarIcon, CheckIcon } from "@radix-ui/react-icons";
-import { Calendar } from "../ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
-import { Close } from "@radix-ui/react-popover";
 import { fetchData } from "@/lib/fetch-data";
+import { useDataStore } from "@/store/data-store";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { Calendar } from "../ui/calendar";
+import { format } from "date-fns";
+import { LatLngTuple } from "leaflet";
 
 export function SelectorForm() {
   const form = useForm<z.infer<typeof formEodSchema>>({
     resolver: zodResolver(formEodSchema),
   });
+  const updateFormValues = useDataStore((store) => store.updateFormValues);
+  const updateData = useDataStore((store) => store.updateData);
+  const storedFormValues = useDataStore((store) => store.formValues);
+  const updateMainPolygon = useDataStore((store) => store.updateMainPolygon);
 
   async function onSubmit(values: z.infer<typeof formEodSchema>) {
-    console.log(values);
-    const from = new Date(values.date.from).toISOString();
-    const to = new Date(values.date.to).toISOString();
+    const from = new Date(values.from).toISOString();
+    const to = new Date(values.to).toISOString();
 
     const data = await fetchData({
       latmin: values.latmin,
@@ -40,128 +43,184 @@ export function SelectorForm() {
       dateFrom: from,
       dateTo: to,
     });
-    console.log(data);
+    const polygon: LatLngTuple[] = [
+      [values.lonmin, values.latmin],
+      [values.lonmax, values.latmin],
+      [values.lonmax, values.latmax],
+      [values.lonmin, values.latmax],
+    ];
+
+    updateMainPolygon(polygon);
+    updateFormValues(values);
+    updateData(data);
   }
 
   return (
-    <div className="space-y-8 p-8 max-w-sm">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <FormField
-            control={form.control}
-            name="lonmin"
-            defaultValue={0}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimun Longitude</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="lat min" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="latmin"
-            defaultValue={0}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimun Latitude</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="lat min" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex gap-2 justify-center items-center w-full h-16"
+      >
+        <FormField
+          control={form.control}
+          name="lonmin"
+          defaultValue={storedFormValues?.lonmin || undefined}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  className="w-32"
+                  type="number"
+                  placeholder="Min Long"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="latmin"
+          defaultValue={storedFormValues?.latmin || undefined}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  className="w-32"
+                  type="number"
+                  placeholder="Min Lat"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-          <FormField
-            control={form.control}
-            name="latmax"
-            defaultValue={0}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximun Latitude</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="lat max" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="lonmax"
-            defaultValue={0}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximun Longitude</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="lat min" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Date Frame</FormLabel>
-                <FormControl>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !field.value && "text-muted-foreground",
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value?.from || "" ? (
-                          field.value.to || "" ? (
-                            <>
-                              {format(field.value.from, "LLL dd, y")} -{" "}
-                              {format(field.value.to, "LLL dd, y")}
-                            </>
-                          ) : (
-                            format(field.value.from, "LLL dd, y")
-                          )
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-auto p-0 flex flex-col h-96"
-                      align="center"
+        <FormField
+          control={form.control}
+          name="latmax"
+          defaultValue={storedFormValues?.latmax || undefined}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  type="number"
+                  className="w-32"
+                  placeholder="Max Lat"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="lonmax"
+          defaultValue={storedFormValues?.lonmax || undefined}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input
+                  className="w-32"
+                  type="number"
+                  placeholder="Max Long"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="from"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
+                      )}
                     >
-                      <div className="pb-6">
-                        <Calendar
-                          initialFocus
-                          mode="range"
-                          defaultMonth={field.value?.from}
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          numberOfMonths={2}
-                        />
-                        <Close className="absolute bottom-2 right-1/2 ">
-                          <CheckIcon color="green" className="h-6 w-6" />
-                        </Close>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit</Button>
-        </form>
-      </Form>
-    </div>
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto p-0 flex flex-col h-96"
+                  align="center"
+                >
+                  <Calendar
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="to"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[240px] pl-3 text-left font-normal",
+                        !field.value && "text-muted-foreground",
+                      )}
+                    >
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                    </Button>
+                  </FormControl>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    captionLayout="dropdown-buttons"
+                    mode="single"
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit">Search</Button>
+      </form>
+    </Form>
   );
 }
