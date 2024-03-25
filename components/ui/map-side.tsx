@@ -22,7 +22,7 @@ export const MapSide = ({ data }: Props) => {
   return (
     <MapContainer
       center={center || [51.505, -0.09]}
-      className="w-[900px] h-[600px]"
+      className="w-[700px] h-[600px] xl:w-[900px] xl:h-[650px]"
       zoom={9}
       scrollWheelZoom={false}
     >
