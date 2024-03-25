@@ -6,6 +6,7 @@ export type Props = {
   lonmax: number;
   dateFrom: string;
   dateTo: string;
+  limit?: string;
 };
 export async function fetchData({
   latmin,
@@ -14,13 +15,14 @@ export async function fetchData({
   lonmax,
   dateFrom,
   dateTo,
+  limit = "50",
 }: Props) {
   const url = API_PATH.catalog;
   const payload = {
     datetime: `${dateFrom}/${dateTo}`,
     collections: ["landsat8_c2l1t1"],
-    limit: 50,
-    bbox: [lonmin, latmin, latmax, lonmax],
+    limit: limit,
+    bbox: [lonmin, latmin, lonmax, latmax],
   };
 
   const headers = {
@@ -38,6 +40,21 @@ export async function fetchData({
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
+}
+
+export async function fetchItemData(id: string) {
+  try {
+    const url = API_PATH.serchItem + id;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
     const data = await response.json();
     return data;
   } catch (error) {

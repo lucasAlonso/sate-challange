@@ -1,6 +1,6 @@
 import { FormValues } from "@/types/forms/download-eod-form";
 import { SearchResponse } from "@/types/search-response";
-import { LatLngTuple } from "leaflet";
+import { Bounds, LatLngBoundsExpression, LatLngTuple } from "leaflet";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 

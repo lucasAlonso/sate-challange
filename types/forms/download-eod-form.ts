@@ -31,6 +31,7 @@ export const formEodSchema = z
 
     from: z.date(),
     to: z.date(),
+    limit: z.string(),
   })
   .refine(
     (values) => {

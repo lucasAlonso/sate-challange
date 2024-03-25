@@ -21,6 +21,13 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { Calendar } from "../ui/calendar";
 import { format } from "date-fns";
 import { LatLngTuple } from "leaflet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export function SelectorForm() {
   const form = useForm<z.infer<typeof formEodSchema>>({
@@ -42,12 +49,13 @@ export function SelectorForm() {
       lonmax: values.lonmax,
       dateFrom: from,
       dateTo: to,
+      limit: values.limit,
     });
     const polygon: LatLngTuple[] = [
-      [values.lonmin, values.latmin],
-      [values.lonmax, values.latmin],
-      [values.lonmax, values.latmax],
-      [values.lonmin, values.latmax],
+      [values.latmin, values.lonmin],
+      [values.latmin, values.lonmax],
+      [values.latmax, values.lonmax],
+      [values.latmax, values.lonmin],
     ];
 
     updateMainPolygon(polygon);
@@ -59,7 +67,7 @@ export function SelectorForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex gap-2 justify-center items-center w-full h-16"
+        className="flex gap-2 justify-center items-center w-full h-16 flex-wrap"
       >
         <FormField
           control={form.control}
@@ -137,6 +145,7 @@ export function SelectorForm() {
         <FormField
           control={form.control}
           name="from"
+          defaultValue={storedFormValues?.from || undefined}
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <Popover>
@@ -145,14 +154,14 @@ export function SelectorForm() {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
+                        "w-[120px] pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(field.value, "dd-mm-yy")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>Pick date</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -181,6 +190,7 @@ export function SelectorForm() {
         <FormField
           control={form.control}
           name="to"
+          defaultValue={storedFormValues?.to || undefined}
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <Popover>
@@ -189,14 +199,14 @@ export function SelectorForm() {
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-[240px] pl-3 text-left font-normal",
+                        "w-[120px] pl-3 text-left font-normal",
                         !field.value && "text-muted-foreground",
                       )}
                     >
                       {field.value ? (
-                        format(field.value, "PPP")
+                        format(field.value, "dd-mm-yy")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>Pick date</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -215,6 +225,29 @@ export function SelectorForm() {
                   />
                 </PopoverContent>
               </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="limit"
+          render={({ field }) => (
+            <FormItem>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Response Limit" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="20">20</SelectItem>
+                  <SelectItem value="30">30</SelectItem>
+                  <SelectItem value="40">40</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}
