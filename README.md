@@ -1,36 +1,31 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Satte challange repo
 
-## Getting Started
+This is a repo about sattelogic's challenge.
 
-First, run the development server:
+To run the clone the repo and run
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+`make build-development`
+`make start-development`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+repeat last one if you already build the image.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## App Usage
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Use the controls to make the search
 
-## Learn More
+Latitude and longitude fields need to be filled with decimal geographical coordinates.
+Fill dates and the amount of max features per search that its needed.
 
-To learn more about Next.js, take a look at the following resources:
+### Search results
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The results will be rendered at the left, as a list of links, each one with the id and date of that resource,
+and at the right as polygons and markers inside the Map.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Each link will head to a page that contains all the information and a special map that renders that asset.
 
-## Deploy on Vercel
+### Map
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The map show the polygon of the search in violet and the results in red colored polygons.
+The markers contains a link to the page with additional information.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+In the top right you have a layer control where you can toggle the visibility of any polygon.
