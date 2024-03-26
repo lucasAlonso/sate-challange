@@ -5,6 +5,7 @@ This is a repo about sattelogic's challenge.
 To run the clone the repo and run
 
 `make build-development`
+
 `make start-development`
 
 repeat last one if you already build the image.
